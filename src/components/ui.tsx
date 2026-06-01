@@ -20,9 +20,7 @@ const statusTone: Record<string, string> = {
   canceled: 'bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300',
 };
 
-export function formatMoney(amount: number, currency = 'XOF') {
-  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency, maximumFractionDigits: currency === 'XOF' ? 0 : 2 }).format(amount);
-}
+
 
 export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
   return <section className={`rounded-3xl border bg-white/85 p-6 shadow-sm backdrop-blur dark:bg-slate-900/80 ${className}`}>{children}</section>;
@@ -77,4 +75,23 @@ export function ErrorState({ message }: { message: string }) {
 
 export function LoadingRows() {
   return <div className="space-y-3">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-12 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" />)}</div>;
+}
+
+export function formatMoney(amount: number, currency: string) {
+  // 💡 Crypto / non ISO currencies
+  const customCurrencies = ["USDT", "BTC", "ETH"];
+
+  if (customCurrencies.includes(currency)) {
+    return `${amount.toLocaleString("fr-FR")} ${currency}`;
+  }
+
+  try {
+    return new Intl.NumberFormat("fr-FR", {
+      style: "currency",
+      currency,
+    }).format(amount);
+  } catch (e) {
+    // fallback safety (important pour Vercel)
+    return `${amount.toLocaleString("fr-FR")} ${currency}`;
+  }
 }
